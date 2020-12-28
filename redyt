@@ -1,0 +1,24 @@
+#!/bin/sh
+
+if [ -z $1 ]; then
+  echo -n "Search query: "; 
+  subreddit=$(cat ~/.config/redyt/subreddit.txt | dmenu -p "Select Subreddit r/" -i -l 10 | cut -d\| -f1 | awk '{$1=$1;print}')
+  if [ "$subreddit" == "" ]; then exit; fi
+else
+  subreddit=$1
+fi
+
+cachedir=$HOME/.cache/redyt
+limit=100
+notify-send "📩 Downloading your 🖼️ Memes"
+curl -H "User-agent: 'your bot 0.1'" https://www.reddit.com/r/$subreddit/hot.json?limit=$limit > $cachedir/tmp.json && 
+imgs=$(cat $cachedir/tmp.json | jq '.' | grep url_overridden_by_dest | grep -Eo "https://.*(jpg|png)\b")
+
+wget -P $cachedir $imgs
+notify-send "👍 Download Finished, Enjoy! 😊"
+sxiv -a $cachedir/*png $cachedir/*jpg 
+
+rm $cachedir/*jpg 
+rm $cachedir/*png
+rm $cachedir/*gif
+rm $cachedir/*.1
