@@ -8,7 +8,7 @@ done
 [ ! "$(which notify-send)" ] && notifier="echo" || notifier="notify-send"
 
 # Default config directory
-configdir="$HOME/.config/redyt"
+configdir="${XDG_CONFIG_HOME:-$HOME/.config}/redyt"
 
 # Create .config/redyt if it does not exist to prevent
 # the program from not functioning properly
@@ -37,7 +37,7 @@ else
 fi
 
 # Default directory used to store the feed file and fetched images
-cachedir="$HOME/.cache/redyt"
+cachedir="${XDG_CACHE_HOME:-$HOME/.cache}/redyt"
 
 # If cachedir does not exist, create it
 if [ ! -d "$cachedir" ]; then
