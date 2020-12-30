@@ -1,7 +1,7 @@
 # redyt
 Scrape Reddit images from the Terminal
 
-This Bash script will automatically create the two following folders:
+This shell script will automatically create the two following folders:
   - `~/.cache/redyt`
   - `~/.config/redyt`
 
