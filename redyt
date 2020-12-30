@@ -72,4 +72,4 @@ $notifier  "Redyt" "👍 Download Finished, Enjoy! 😊"
 sxiv -a "$cachedir"/*.png "$cachedir"/*.jpg
 
 # Once finished, remove all of the cached images
-rm "$cachedir"/*
+rm "${cachedir:?}"/*
