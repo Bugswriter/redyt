@@ -1,24 +1,31 @@
 #!/bin/sh
 
-#check for necessary programs
+# Check if necessary programs are installed
 for prog in dmenu jq sxiv; do
 	[ ! "$(which "$prog")" ] && echo "Please install $prog!" && exit 1
 done
 # If notify-send is not installed, use echo as notifier
 [ ! "$(which notify-send)" ] && notifier="echo" || notifier="notify-send"
 
+# Default config directory
+configdir="${XDG_CONFIG_HOME:-$HOME/.config}/redyt"
+
 # Create .config/redyt if it does not exist to prevent
 # the program from not functioning properly
-[ ! -d "$HOME/.config/redyt" ] && echo "Directory $HOME/.config/redyt does not exist, creating..." && mkdir -p "$HOME/.config/redyt"
+[ ! -d "$configdir" ] && echo "Directory $configdir does not exist, creating..." && mkdir -p "$configdir"
+
+# Default subreddit that will be inserted in "subreddit.txt"
+# if it does not exist
+defaultsub="linuxmemes"
 
 # If subbreddit.txt does not exist, create it to prevent
 # the program from not functioning properly
-[ ! -f "$HOME/.config/redyt/subreddit.txt" ] && echo "linux" >> "$HOME/.config/redyt/subreddit.txt"
+[ ! -f "$configdir/subreddit.txt" ] && echo "$defaultsub" >> "$configdir/subreddit.txt"
 
 # If no argument is passed
 if [ -z "$1" ]; then
 	# Ask the user to enter a subreddit
-	subreddit=$(dmenu -p "Select Subreddit r/" -i -l 10 < "$HOME/.config/redyt/subreddit.txt" | cut -d\| -f1 | awk '{$1=$1;print}')
+	subreddit=$(dmenu -p "Select Subreddit r/" -i -l 10 < "$configdir/subreddit.txt" | cut -d\| -f1 | awk '{$1=$1;print}')
 
 	# If no subreddit was chosen, exit
 	[ -z "$subreddit" ] && exit 1
@@ -29,7 +36,8 @@ else
 	subreddit="$1"
 fi
 
-cachedir="$HOME/.cache/redyt"
+# Default directory used to store the feed file and fetched images
+cachedir="${XDG_CACHE_HOME:-$HOME/.cache}/redyt"
 
 # If cachedir does not exist, create it
 if [ ! -d "$cachedir" ]; then
@@ -37,6 +45,7 @@ if [ ! -d "$cachedir" ]; then
 	mkdir -p "$cachedir"
 fi
 
+# Limit the maximum number of requests to make
 limit=100
 
 # Send a notification

@@ -1,7 +1,7 @@
 # redyt
-Search reddit with CLI
+Scrape Reddit images from the Terminal
 
-This script will automatically create the two following folders:
+This Bash script will automatically create the two following folders:
   - `~/.cache/redyt`
   - `~/.config/redyt`
 
@@ -9,7 +9,8 @@ Also, another file, containing the subreddits, will be created:
     
   - `~/.config/redyt/subreddits.txt`
 
-It the user does not modify it, it will contain, by default, subreddit `linux`.
+It the user does not modify it, it will contain, by default, subreddit `linuxmemes`.
+However, this default subreddit can be changed by modifying the variable `defaultsub`.
 
 However, note that you can either pass a subreddit as an argument (`./redyt [your-subreddit]`) 
 or, from `dmenu`, type the name of another subreddit.
