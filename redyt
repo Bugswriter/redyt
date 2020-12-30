@@ -55,7 +55,7 @@ $notifier "Redyt: 📩 Downloading your 🖼️ Memes"
 curl -H "User-agent: 'your bot 0.1'" "https://www.reddit.com/r/$subreddit/hot.json?limit=$limit" > "$cachedir/tmp.json"
 
 # Create a list of images
-imgs=$(cat "$cachedir/tmp.json" | jq '.' | grep url_overridden_by_dest | grep -Eo "http(s|)://.*(jpg|png)\b" | sort -u)
+imgs=$(jq '.' < "$cachedir/tmp.json" | grep url_overridden_by_dest | grep -Eo "http(s|)://.*(jpg|png)\b" | sort -u)
 
 # If there are no images, exit
 [ -z "$imgs" ] && $notifier "Redyt: sadly, there are no images for subreddit $subreddit, please try again later!" && exit 1
