@@ -11,7 +11,7 @@ Search reddit with CLI
 ```
 git clone https://github.com/Bugswriter/redyt.git
 cd redyt
-sudo make install
+make install
 ```
 
 The Makefile will create a cache directory: `~/.cache/redyt/` , and a .txt file in `~/.config/redyt/subreddit.txt`
