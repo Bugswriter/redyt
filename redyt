@@ -49,7 +49,7 @@ fi
 limit=100
 
 # Send a notification
-$notifier "Redyt: 📩 Downloading your 🖼️ Memes"
+$notifier "Redyt" "📩 Downloading your 🖼️ Memes"
 
 # Download the subreddit feed, containing only the
 # first 100 entries (limit), and store it inside
@@ -60,13 +60,13 @@ curl -H "User-agent: 'your bot 0.1'" "https://www.reddit.com/r/$subreddit/hot.js
 imgs=$(jq '.' < "$cachedir/tmp.json" | grep url_overridden_by_dest | grep -Eo "http(s|)://.*(jpg|png)\b" | sort -u)
 
 # If there are no images, exit
-[ -z "$imgs" ] && $notifier "Redyt: sadly, there are no images for subreddit $subreddit, please try again later!" && exit 1
+[ -z "$imgs" ] && $notifier "Redyt" "sadly, there are no images for subreddit $subreddit, please try again later!" && exit 1
 
 # Download images to $cachedir
 wget -P "$cachedir" $imgs
 
 # Send a notification
-$notifier  "Redyt: 👍 Download Finished, Enjoy! 😊"
+$notifier  "Redyt" "👍 Download Finished, Enjoy! 😊"
 
 # Display the images
 sxiv -a "$cachedir"/*.png "$cachedir"/*.jpg
