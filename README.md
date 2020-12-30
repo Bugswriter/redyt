@@ -1,12 +1,22 @@
 # redyt
 Search reddit with CLI
 
-- You need to create a ~/.cache/redyt/ directory
-- Also a ~/.config/redyt/subreddit.txt
+## Dependencies
+- Dmenu
+- jq
 
-here is mine subreddit.txt: http://0x0.st/-rbq.txt
 
-Programs you need are dmenu, jq
+## Install and Use
 
-note: Idk how to write readme. if anyone can do it and give me a pull request please
+```
+git clone https://github.com/Bugswriter/redyt.git
+cd redyt
+make install
+```
 
+The Makefile will create a cache directory: `~/.cache/redyt/` , and a .txt file in `~/.config/redyt/subreddit.txt`
+
+The only setup required is to list the subreddit names you would like to fetch images from in `subreddit.txt`. An
+example subreddit.txt file can be found [here](http://0x0.st/-rbq.txt).
+
+Once setup, you'll use `redyt` to fetch images from the selected subreddit at the dmenu prompt.
