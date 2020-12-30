@@ -22,7 +22,7 @@
 
 # If no argument is passed
 if [ -z "$1" ]; then
-	echo -n "Search query: "; 
+	echo -n "Search query: ";
 
 	# Ask the user to enter a subreddit
 	subreddit=$(cat "$HOME/.config/redyt/subreddit.txt" | dmenu -p "Select Subreddit r/" -i -l 10 | cut -d\| -f1 | awk '{$1=$1;print}')
@@ -67,7 +67,7 @@ wget -P "$cachedir" $imgs
 $notifier  "Redyt: 👍 Download Finished, Enjoy! 😊"
 
 # Display the images
-sxiv -a "$cachedir/*.png" "$cachedir/*.jpg"
+sxiv -a "$cachedir"/*.png "$cachedir"/*.jpg
 
 # Once finished, remove all of the cached images
 rm "$cachedir"/*
