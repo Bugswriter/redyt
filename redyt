@@ -1,16 +1,11 @@
 #!/bin/sh
 
-# Check if dmenu is installed
-[ ! $(which dmenu) ] && echo "Please install dmenu!" && exit 1
-
-# Check if jq is installed
-[ ! $(which jq) ] && echo "Please install jq!" && exit 1
-
+#check for necessary programs
+for prog in dmenu jq sxiv; do
+	[ ! "$(which "$prog")" ] && echo "Please install $prog!" && exit 1
+done
 # If notify-send is not installed, use echo as notifier
 [ ! $(which notify-send) ] && notifier="echo" || notifier="notify-send"
-
-# Check is sxiv is installed
-[ ! $(which sxiv) ] && echo "Please install sxiv!" && exit 1
 
 # Create .config/redyt if it does not exist to prevent
 # the program from not functioning properly
