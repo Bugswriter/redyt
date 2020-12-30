@@ -1,12 +1,24 @@
-# redyt
-Search reddit with CLI
+## redyt
+Redyt is an utility that fetches subreddit's images and allows you to see them in the CLI.
 
-- You need to create a ~/.cache/redyt/ directory
-- Also a ~/.config/redyt/subreddit.txt
+### Dependencies
+* [dmenu](https://tools.suckless.org/dmenu/)
+* jq
+ 
+If you are on an arch based distribution, just run 
 
-here is mine subreddit.txt: http://0x0.st/-rbq.txt
+```shell
+sudo pacman -S dmenu jq
+```
 
-Programs you need are dmenu, jq
+### Installation and use
 
-note: Idk how to write readme. if anyone can do it and give me a pull request please
+>NOTE: Ensure you have ~/.local/bin in your path. You can do this by typing `echo $PATH` and searching for that folder.
+
+```shell
+git clone https://github.com/Bugswriter/redyt.git
+cd redyt
+make install
+```
+Now, the only thing that is left to do is to write your favourite subreddits in `subreddit.txt` which is placed on `~/.config/redyt/subreddit.txt . [Here](https://0x0.st/-rbq.txt) is an example of the subreddit.txt file. 
 
