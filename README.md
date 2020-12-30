@@ -20,5 +20,5 @@ git clone https://github.com/Bugswriter/redyt.git
 cd redyt
 make install
 ```
-Now, the only thing that is left to do is to write your favourite subreddits in `subreddit.txt` which is placed on `~/.config/redyt/subreddit.txt . [Here](https://0x0.st/-rbq.txt) is an example of the subreddit.txt file. 
+Now, the only thing that is left to do is to write your favourite subreddits in `subreddit.txt` which is placed on `~/.config/redyt/subreddit.txt`. [Here](https://0x0.st/-rbq.txt) is an example of the subreddit.txt file. 
 
