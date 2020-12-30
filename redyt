@@ -37,7 +37,7 @@ else
 fi
 
 # Default directory used to store the feed file and fetched images
-cachedir="${XDG_CACHE_HOME:-$HOME/.cache}/redyt"
+cachedir="/tmp/redyt"
 
 # If cachedir does not exist, create it
 if [ ! -d "$cachedir" ]; then
