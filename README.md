@@ -7,7 +7,7 @@ This shell script will automatically create the following folder:
 
 Also, another file, containing the subreddits, will be created:
 
-  - `~/.config/redyt/subreddits.txt`
+  - `~/.config/redyt/subreddit.txt`
 
 If the user does not modify this file, it will contain, by default, subreddit `linuxmemes`.
 However, this default subreddit can be changed by modifying the variable `defaultsub`.
