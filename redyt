@@ -1,31 +1,31 @@
 #!/bin/sh
 
-# Check if dmenu is installed
-[ ! $(which dmenu) ] && echo "Please install dmenu!" && exit 1
-
-# Check if jq is installed
-[ ! $(which jq) ] && echo "Please install jq!" && exit 1
-
+# Check if necessary programs are installed
+for prog in dmenu jq sxiv; do
+	[ ! "$(which "$prog")" ] && echo "Please install $prog!" && exit 1
+done
 # If notify-send is not installed, use echo as notifier
-[ ! $(which notify-send) ] && notifier="echo" || notifier="notify-send"
+[ ! "$(which notify-send)" ] && notifier="echo" || notifier="notify-send"
 
-# Check is sxiv is installed
-[ ! $(which sxiv) ] && echo "Please install sxiv!" && exit 1
+# Default config directory
+configdir="${XDG_CONFIG_HOME:-$HOME/.config}/redyt"
 
 # Create .config/redyt if it does not exist to prevent
 # the program from not functioning properly
-[ ! -d "$HOME/.config/redyt" ] && echo "Directory $HOME/.config/redyt does not exist, creating..." && mkdir -p "$HOME/.config/redyt"
+[ ! -d "$configdir" ] && echo "Directory $configdir does not exist, creating..." && mkdir -p "$configdir"
+
+# Default subreddit that will be inserted in "subreddit.txt"
+# if it does not exist
+defaultsub="linuxmemes"
 
 # If subbreddit.txt does not exist, create it to prevent
 # the program from not functioning properly
-[ ! -f "$HOME/.config/redyt/subreddit.txt" ] && echo "linux" >> "$HOME/.config/redyt/subreddit.txt"
+[ ! -f "$configdir/subreddit.txt" ] && echo "$defaultsub" >> "$configdir/subreddit.txt"
 
 # If no argument is passed
 if [ -z "$1" ]; then
-	echo -n "Search query: "; 
-
 	# Ask the user to enter a subreddit
-	subreddit=$(cat "$HOME/.config/redyt/subreddit.txt" | dmenu -p "Select Subreddit r/" -i -l 10 | cut -d\| -f1 | awk '{$1=$1;print}')
+	subreddit=$(dmenu -p "Select Subreddit r/" -i -l 10 < "$configdir/subreddit.txt" | cut -d\| -f1 | awk '{$1=$1;print}')
 
 	# If no subreddit was chosen, exit
 	[ -z "$subreddit" ] && exit 1
@@ -36,7 +36,8 @@ else
 	subreddit="$1"
 fi
 
-cachedir="$HOME/.cache/redyt"
+# Default directory used to store the feed file and fetched images
+cachedir="/tmp/redyt"
 
 # If cachedir does not exist, create it
 if [ ! -d "$cachedir" ]; then
@@ -44,10 +45,11 @@ if [ ! -d "$cachedir" ]; then
 	mkdir -p "$cachedir"
 fi
 
+# Limit the maximum number of requests to make
 limit=100
 
 # Send a notification
-$notifier "Redyt: 📩 Downloading your 🖼️ Memes"
+$notifier "Redyt" "📩 Downloading your 🖼️ Memes"
 
 # Download the subreddit feed, containing only the
 # first 100 entries (limit), and store it inside
@@ -55,19 +57,19 @@ $notifier "Redyt: 📩 Downloading your 🖼️ Memes"
 curl -H "User-agent: 'your bot 0.1'" "https://www.reddit.com/r/$subreddit/hot.json?limit=$limit" > "$cachedir/tmp.json"
 
 # Create a list of images
-imgs=$(cat "$cachedir/tmp.json" | jq '.' | grep url_overridden_by_dest | grep -Eo "http(s|)://.*(jpg|png)\b")
+imgs=$(jq '.' < "$cachedir/tmp.json" | grep url_overridden_by_dest | grep -Eo "http(s|)://.*(jpg|png)\b" | sort -u)
 
 # If there are no images, exit
-[ -z "$imgs" ] && $notifier "Redyt: sadly, there are no images for subreddit $subreddit, please try again later!" && exit 1
+[ -z "$imgs" ] && $notifier "Redyt" "sadly, there are no images for subreddit $subreddit, please try again later!" && exit 1
 
 # Download images to $cachedir
 wget -P "$cachedir" $imgs
 
 # Send a notification
-$notifier  "Redyt: 👍 Download Finished, Enjoy! 😊"
+$notifier  "Redyt" "👍 Download Finished, Enjoy! 😊"
 
 # Display the images
-sxiv -a "$cachedir/*.png" "$cachedir/*.jpg"
+sxiv -a "$cachedir"/*.png "$cachedir"/*.jpg
 
 # Once finished, remove all of the cached images
-rm "$cachedir"/*
+rm "${cachedir:?}"/*
