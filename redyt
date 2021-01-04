@@ -18,7 +18,7 @@ configdir="${XDG_CONFIG_HOME:-$HOME/.config}/redyt"
 # if it does not exist
 defaultsub="linuxmemes"
 
-# If subbreddit.txt does not exist, create it to prevent
+# If subreddit.txt does not exist, create it to prevent
 # the program from not functioning properly
 [ ! -f "$configdir/subreddit.txt" ] && echo "$defaultsub" >> "$configdir/subreddit.txt"
 
