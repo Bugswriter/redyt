@@ -10,6 +10,10 @@ done
 # args
 while [ $# -gt 0 ]; do
 	case $1 in
+		-k|--keep)
+			KEEP=1
+			shift
+			;;
 		-v|--verbose)
 			VERBOSE=1
 			shift
@@ -81,4 +85,4 @@ wget -P "$cachedir" $imgs
 sxiv -a "$cachedir"
 
 # Once finished, remove all of the cached images
-rm "${cachedir:?}"/*
+[ ! $KEEP ] && rm "${cachedir:?}"/*
