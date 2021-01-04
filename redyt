@@ -10,6 +10,10 @@ done
 # args
 while [ $# -gt 0 ]; do
 	case $1 in
+		-v|--verbose)
+			VERBOSE=1
+			shift
+			;;
 		*)
 			subreddit=$1
 			shift
@@ -54,7 +58,7 @@ fi
 limit=100
 
 # Send a notification
-$notifier "Redyt" "📩 Downloading your 🖼️ Memes"
+[ $VERBOSE ] && $notifier "Redyt" "📩 Downloading your 🖼️ Memes"
 
 # Download the subreddit feed, containing only the
 # first 100 entries (limit), and store it inside
@@ -71,7 +75,7 @@ imgs=$(jq '.' < "$cachedir/tmp.json" | grep url_overridden_by_dest | grep -Eo "h
 wget -P "$cachedir" $imgs
 
 # Send a notification
-$notifier  "Redyt" "👍 Download Finished, Enjoy! 😊"
+[ $VERBOSE ] && $notifier  "Redyt" "👍 Download Finished, Enjoy! 😊"
 
 # Display the images
 sxiv -a "$cachedir"
