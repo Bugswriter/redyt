@@ -86,7 +86,11 @@ imgs=$(jq '.' < "$cachedir/tmp.json" | grep url_overridden_by_dest | grep -Eo "h
 [ -z "$imgs" ] && $notifier "Redyt" "sadly, there are no images for subreddit $subreddit, please try again later!" && exit 1
 
 # Download images to $cachedir
-wget -P "$cachedir" $imgs
+for img in $imgs; do
+	if [ ! -e "$cachedir/${img##*/}" ]; then
+		wget -P "$cachedir" $img
+	fi
+done
 
 # Send a notification
 [ $VERBOSE ] && $notifier  "Redyt" "👍 Download Finished, Enjoy! 😊"
