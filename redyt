@@ -10,6 +10,16 @@ done
 # args
 while [ $# -gt 0 ]; do
 	case $1 in
+		-l|--limit)
+			shift
+			LIMIT=$1
+			case $LIMIT in
+				''|*[!0-9]*)
+					echo 'limit is NaN'
+					exit 1
+			esac
+			shift
+			;;
 		-k|--keep)
 			KEEP=1
 			shift
@@ -59,7 +69,7 @@ if [ ! -d "$cachedir" ]; then
 fi
 
 # Limit the maximum number of requests to make
-limit=100
+limit=${LIMIT:-100}
 
 # Send a notification
 [ $VERBOSE ] && $notifier "Redyt" "📩 Downloading your 🖼️ Memes"
