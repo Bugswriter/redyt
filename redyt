@@ -7,6 +7,16 @@ done
 # If notify-send is not installed, use echo as notifier
 [ ! "$(which notify-send)" ] && notifier="echo" || notifier="notify-send"
 
+# args
+while [ $# -gt 0 ]; do
+	case $1 in
+		*)
+			subreddit=$1
+			shift
+			;;
+	esac
+done
+
 # Default config directory
 configdir="${XDG_CONFIG_HOME:-$HOME/.config}/redyt"
 
@@ -28,12 +38,7 @@ if [ -z "$1" ]; then
 	subreddit=$(dmenu -p "Select Subreddit r/" -i -l 10 < "$configdir/subreddit.txt" | awk -F "|" '{print $1}')
 
 	# If no subreddit was chosen, exit
-	[ -z "$subreddit" ] && exit 1
-
-# Otherwise assign the first argument to the
-# subreddit variable
-else
-	subreddit="$1"
+	[ -z "$subreddit" ] && echo "no sub chosen" && exit 1
 fi
 
 # Default directory used to store the feed file and fetched images
