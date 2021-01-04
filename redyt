@@ -80,6 +80,7 @@ wget -P "$cachedir" $imgs
 
 # Send a notification
 [ $VERBOSE ] && $notifier  "Redyt" "👍 Download Finished, Enjoy! 😊"
+rm "$cachedir/tmp.json"
 
 # Display the images
 sxiv -a "$cachedir"
