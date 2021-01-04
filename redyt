@@ -25,7 +25,7 @@ defaultsub="linuxmemes"
 # If no argument is passed
 if [ -z "$1" ]; then
 	# Ask the user to enter a subreddit
-	subreddit=$(dmenu -p "Select Subreddit r/" -i -l 10 < "$configdir/subreddit.txt" | cut -d\| -f1 | awk '{$1=$1;print}')
+	subreddit=$(dmenu -p "Select Subreddit r/" -i -l 10 < "$configdir/subreddit.txt" | awk -F "|" '{print $1}')
 
 	# If no subreddit was chosen, exit
 	[ -z "$subreddit" ] && exit 1
