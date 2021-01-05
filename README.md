@@ -1,4 +1,5 @@
 # redyt
+
 Scrape Reddit images from the Terminal
 
 This shell script will automatically create the following folder:
@@ -23,3 +24,16 @@ Please note: you will need to install the following programs:
   - sxiv (Image Viewing)
 
 `notify-send` is also recommended but, if not present, `echo` will be used as a notifier.
+
+## Usage
+
+```sh
+$ redyt [-l LIMIT] [-v] [-k] [SUBREDDIT]
+$ redyt [--limit LIMIT] [--verbose] [--keep] [SUBREDDIT]
+```
+
+## Arguments
+
+* `-l LIMIT, --limit LIMIT` set the maximum number of files to be downloaded
+* `-k, --keep` don't remove files after quitting `sxiv`
+* `-v, --verbose` use notifier
