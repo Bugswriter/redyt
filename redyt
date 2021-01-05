@@ -20,6 +20,10 @@ while [ $# -gt 0 ]; do
 			esac
 			shift
 			;;
+		-f|--filter)
+			FILTER=1
+			shift
+			;;
 		-k|--keep)
 			KEEP=1
 			shift
@@ -94,7 +98,11 @@ done
 rm "$cachedir/tmp.json"
 
 # Display the images
-sxiv -a "$cachedir"
+if [ $FILTER ]; then
+	sxiv -a -o "$cachedir"
+else
+	sxiv -a "$cachedir"
+fi
 
 # Once finished, remove all of the cached images
 [ ! $KEEP ] && rm "${cachedir:?}"/*
