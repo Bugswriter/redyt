@@ -68,16 +68,13 @@ if [ ! -d "$cachedir" ]; then
 	mkdir -p "$cachedir"
 fi
 
-# Limit the maximum number of requests to make
-limit=${LIMIT:-100}
-
 # Send a notification
 [ $VERBOSE ] && $notifier "Redyt" "📩 Downloading your 🖼️ Memes"
 
 # Download the subreddit feed, containing only the
 # first 100 entries (limit), and store it inside
 # cachedir/tmp.json
-curl -H "User-agent: 'your bot 0.1'" "https://www.reddit.com/r/$subreddit/hot.json?limit=$limit" > "$cachedir/tmp.json"
+curl -H "User-agent: 'your bot 0.1'" "https://www.reddit.com/r/$subreddit/hot.json?limit=${LIMIT:-100}" > "$cachedir/tmp.json"
 
 # Create a list of images
 imgs=$(jq '.' < "$cachedir/tmp.json" | grep url_overridden_by_dest | grep -Eo "http(s|)://.*(jpg|png)\b" | sort -u)
