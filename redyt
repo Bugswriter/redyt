@@ -51,7 +51,7 @@ defaultsub="linuxmemes"
 [ ! -f "$configdir/subreddit.txt" ] && echo "$defaultsub" >> "$configdir/subreddit.txt"
 
 # If no argument is passed
-if [ -z "$1" ]; then
+if [ -z "$subreddit" ]; then
 	# Ask the user to enter a subreddit
 	subreddit=$(dmenu -p "Select Subreddit r/" -i -l 10 < "$configdir/subreddit.txt" | awk -F "|" '{print $1}')
 
