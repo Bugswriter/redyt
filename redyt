@@ -73,7 +73,7 @@ if [ ! -d "$cachedir" ]; then
 fi
 
 # Send a notification
-[ $VERBOSE ] && $notifier "Redyt" "📩 Downloading your 🖼️ Memes"
+[ $VERBOSE -eq 1 ] && $notifier "Redyt" "📩 Downloading your 🖼️ Memes"
 
 # Download the subreddit feed, containing only the
 # first 100 entries (limit), and store it inside
@@ -94,15 +94,15 @@ for img in $imgs; do
 done
 
 # Send a notification
-[ $VERBOSE ] && $notifier  "Redyt" "👍 Download Finished, Enjoy! 😊"
+[ $VERBOSE -eq 1 ] && $notifier  "Redyt" "👍 Download Finished, Enjoy! 😊"
 rm "$cachedir/tmp.json"
 
 # Display the images
-if [ $FILTER ]; then
+if [ $FILTER -eq 1 ]; then
 	sxiv -a -o "$cachedir"
 else
 	sxiv -a "$cachedir"
 fi
 
 # Once finished, remove all of the cached images
-[ ! $KEEP ] && rm "${cachedir:?}"/*
+[ ! $KEEP -eq 1 ] && rm "${cachedir:?}"/*
