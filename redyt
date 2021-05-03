@@ -51,10 +51,14 @@ limit=100
 # Send a notification
 $notifier "Redyt" "📩 Downloading your 🖼️ Memes"
 
+# Set user agent
+$useragent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36"
+
 # Download the subreddit feed, containing only the
 # first 100 entries (limit), and store it inside
 # cachedir/tmp.json
-curl -H "User-agent: 'your bot 0.1'" "https://www.reddit.com/r/$subreddit/hot.json?limit=$limit" > "$cachedir/tmp.json"
+curl -H "User-agent: '$useragent'" "https://www.reddit.com/r/$subreddit/hot.json?limit=$limit" > "$cachedir/tmp.json"
+
 
 # Create a list of images
 imgs=$(jq '.' < "$cachedir/tmp.json" | grep url_overridden_by_dest | grep -Eo "http(s|)://.*(jpg|png)\b" | sort -u)
