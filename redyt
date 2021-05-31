@@ -47,7 +47,7 @@ fi
 
 # Limit the maximum number of requests to make
 #limit=100 # For firm limit
-limit=$(printf "10\n100\n150\n200\n300" | dmenu -p "How many queries do you want to make? " -i -l 10) # Allows user to set desired limit
+limit=$(printf "10\n100\n150\n200\n300" | dmenu -p "Queries to make: " -l 5) # Allows user to set desired limit
 
 # Send a notification
 $notifier "Redyt" "📩 Downloading your 🖼️ Memes"
