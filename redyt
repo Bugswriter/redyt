@@ -7,6 +7,38 @@ done
 # If notify-send is not installed, use echo as notifier
 [ ! "$(which notify-send)" ] && notifier="echo" || notifier="notify-send"
 
+# args
+while [ $# -gt 0 ]; do
+	case $1 in
+		-l|--limit)
+			shift
+			LIMIT=$1
+			case $LIMIT in
+				''|*[!0-9]*)
+					echo 'limit is NaN'
+					exit 1
+			esac
+			shift
+			;;
+		-f|--filter)
+			FILTER=1
+			shift
+			;;
+		-k|--keep)
+			KEEP=1
+			shift
+			;;
+		-v|--verbose)
+			VERBOSE=1
+			shift
+			;;
+		*)
+			subreddit=$1
+			shift
+			;;
+	esac
+done
+
 # Default config directory
 configdir="${XDG_CONFIG_HOME:-$HOME/.config}/redyt"
 
@@ -18,22 +50,17 @@ configdir="${XDG_CONFIG_HOME:-$HOME/.config}/redyt"
 # if it does not exist
 defaultsub="linuxmemes"
 
-# If subbreddit.txt does not exist, create it to prevent
+# If subreddit.txt does not exist, create it to prevent
 # the program from not functioning properly
 [ ! -f "$configdir/subreddit.txt" ] && echo "$defaultsub" >> "$configdir/subreddit.txt"
 
 # If no argument is passed
-if [ -z "$1" ]; then
+if [ -z "$subreddit" ]; then
 	# Ask the user to enter a subreddit
-	subreddit=$(dmenu -p "Select Subreddit r/" -i -l 10 < "$configdir/subreddit.txt" | cut -d\| -f1 | awk '{$1=$1;print}')
+	subreddit=$(dmenu -p "Select Subreddit r/" -i -l 10 < "$configdir/subreddit.txt" | awk -F "|" '{print $1}')
 
 	# If no subreddit was chosen, exit
-	[ -z "$subreddit" ] && exit 1
-
-# Otherwise assign the first argument to the
-# subreddit variable
-else
-	subreddit="$1"
+	[ -z "$subreddit" ] && echo "no sub chosen" && exit 1
 fi
 
 # Default directory used to store the feed file and fetched images
@@ -45,16 +72,13 @@ if [ ! -d "$cachedir" ]; then
 	mkdir -p "$cachedir"
 fi
 
-# Limit the maximum number of requests to make
-limit=100
-
 # Send a notification
-$notifier "Redyt" "📩 Downloading your 🖼️ Memes"
+[ $VERBOSE -eq 1 ] && $notifier "Redyt" "📩 Downloading your 🖼️ Memes"
 
 # Download the subreddit feed, containing only the
 # first 100 entries (limit), and store it inside
 # cachedir/tmp.json
-curl -H "User-agent: 'your bot 0.1'" "https://www.reddit.com/r/$subreddit/hot.json?limit=$limit" > "$cachedir/tmp.json"
+curl -H "User-agent: 'your bot 0.1'" "https://www.reddit.com/r/$subreddit/hot.json?limit=${LIMIT:-100}" > "$cachedir/tmp.json"
 
 # Create a list of images
 imgs=$(jq '.' < "$cachedir/tmp.json" | grep url_overridden_by_dest | grep -Eo "http(s|)://.*(jpg|png)\b" | sort -u)
@@ -63,13 +87,22 @@ imgs=$(jq '.' < "$cachedir/tmp.json" | grep url_overridden_by_dest | grep -Eo "h
 [ -z "$imgs" ] && $notifier "Redyt" "sadly, there are no images for subreddit $subreddit, please try again later!" && exit 1
 
 # Download images to $cachedir
-wget -P "$cachedir" $imgs
+for img in $imgs; do
+	if [ ! -e "$cachedir/${img##*/}" ]; then
+		wget -P "$cachedir" $img
+	fi
+done
 
 # Send a notification
-$notifier  "Redyt" "👍 Download Finished, Enjoy! 😊"
+[ $VERBOSE -eq 1 ] && $notifier  "Redyt" "👍 Download Finished, Enjoy! 😊"
+rm "$cachedir/tmp.json"
 
 # Display the images
-sxiv -a "$cachedir"/*.png "$cachedir"/*.jpg
+if [ $FILTER -eq 1 ]; then
+	sxiv -a -o "$cachedir"
+else
+	sxiv -a "$cachedir"
+fi
 
 # Once finished, remove all of the cached images
-rm "${cachedir:?}"/*
+[ ! $KEEP -eq 1 ] && rm "${cachedir:?}"/*
