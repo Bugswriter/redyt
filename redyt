@@ -1,11 +1,18 @@
 #!/bin/sh
 
+is_installed() {
+    # Utility function for testing the existance of given program in the
+    # system.
+
+    [ -x "$(command -v "$1")" ]
+}
+
 # Check if necessary programs are installed
 for prog in dmenu jq sxiv; do
-	[ ! "$(which "$prog")" ] && echo "Please install $prog!" && exit 1
+    ! is_installed "$prog" && echo "Please install $prog!" && exit 1
 done
 # If notify-send is not installed, use echo as notifier
-[ ! "$(which notify-send)" ] && notifier="echo" || notifier="notify-send"
+! is_installed 'notify-send' && notifier="echo" || notifier="notify-send"
 
 # args
 while [ $# -gt 0 ]; do
