@@ -93,7 +93,7 @@ imgs=$(jq '.' < "$cachedir/tmp.json" | grep url_overridden_by_dest | grep -Eo "h
 # Download images to $cachedir
 for img in $imgs; do
 	if [ ! -e "$cachedir/${img##*/}" ]; then
-		wget -P "$cachedir" $img
+		wget -U "$useragent" -P "$cachedir" $img
 	fi
 done
 
@@ -103,9 +103,9 @@ rm "$cachedir/tmp.json"
 
 # Display the images
 if [ $FILTER -eq 1 ]; then
-	sxiv -a -o "$cachedir"
+	sxiv -a -o -s f "$cachedir"
 else
-	sxiv -a "$cachedir"
+	sxiv -a -s f "$cachedir"
 fi
 
 # Once finished, remove all of the cached images
