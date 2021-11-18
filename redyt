@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Check if necessary programs are installed
 for prog in dmenu jq sxiv; do
@@ -73,12 +73,16 @@ if [ ! -d "$cachedir" ]; then
 fi
 
 # Send a notification
-[ $VERBOSE -eq 1 ] && $notifier "Redyt" "📩 Downloading your 🖼️ Memes"
+[[ "$VERBOSE" == "1" ]] && $notifier "Redyt" "📩 Downloading your 🖼️ Memes"
+
+# Set user agent
+useragent=$(shuf -e "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4482.0 Safari/537.36 Edg/92.0.874.0" "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1 Safari/605.1.15" -n 1)
 
 # Download the subreddit feed, containing only the
 # first 100 entries (limit), and store it inside
 # cachedir/tmp.json
-curl -H "User-agent: 'your bot 0.1'" "https://www.reddit.com/r/$subreddit/hot.json?limit=${LIMIT:-100}" > "$cachedir/tmp.json"
+curl -H "User-agent: '$useragent'" "https://www.reddit.com/r/$subreddit/hot.json?limit=${LIMIT:-100}" > "$cachedir/tmp.json"
+
 
 # Create a list of images
 imgs=$(jq '.' < "$cachedir/tmp.json" | grep url_overridden_by_dest | grep -Eo "http(s|)://.*(jpg|png)\b" | sort -u)
@@ -89,20 +93,20 @@ imgs=$(jq '.' < "$cachedir/tmp.json" | grep url_overridden_by_dest | grep -Eo "h
 # Download images to $cachedir
 for img in $imgs; do
 	if [ ! -e "$cachedir/${img##*/}" ]; then
-		wget -P "$cachedir" $img
+		wget -U "$useragent" -P "$cachedir" $img
 	fi
 done
 
 # Send a notification
-[ $VERBOSE -eq 1 ] && $notifier  "Redyt" "👍 Download Finished, Enjoy! 😊"
+[[ "$VERBOSE" == "1" ]] && $notifier  "Redyt" "👍 Download Finished, Enjoy! 😊"
 rm "$cachedir/tmp.json"
 
 # Display the images
-if [ $FILTER -eq 1 ]; then
-	sxiv -a -o "$cachedir"
+if [ "$FILTER" == "1" ]; then
+	sxiv -a -o -s f "$cachedir"
 else
-	sxiv -a "$cachedir"
+	sxiv -a -s f "$cachedir"
 fi
 
 # Once finished, remove all of the cached images
-[ ! $KEEP -eq 1 ] && rm "${cachedir:?}"/*
+[[ "$KEEP" != "1" ]] && rm "${cachedir:?}"/*
