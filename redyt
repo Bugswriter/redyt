@@ -2,27 +2,62 @@
 
 # Check if necessary programs are installed
 for prog in jq curl; do
-	[[ ! "$(command -v "$prog")" ]] && echo "Please install $prog!" && exit 1
+    if [[ ! $(command -v $prog) ]]; then
+	echo "Please install $prog!"
+	exit 1
+    fi
 done
 
-[[ $(command -v sxiv) ]] && viewer="sxiv"
-[[ ! $viewer && $(command -v feh) ]] && viewer="feh"
+if [[ $(command -v sxiv) ]]; then
+    viewer="sxiv"
+    viewer_opts="-a -s f"
+fi
 
-[[ $(command -v dmenu) ]] && selector="dmenu"
-[[ !  $selector && $(command -v rofi) ]] && selector="rofi"
-[[ !  $selector && $(command -v fzf) ]] && selector="fzf"
 
-[[ ! ${viewer} ]] && echo "Please install sxiv or feh!" && exit 1
-[[ ! ${selector} ]] && echo "Please install dmenu or rofi or fzf!" && exit 1
+if [[ ! $viewer && $(command -v feh) ]]; then
+    viewer="feh"
+    viewer_opts="-.ZdB black"
+fi
+
+if [[ $(command -v dmenu) ]]; then
+    selector="dmenu"
+    selector_opts="-P"
+fi
+
+if [[ !  $selector && $(command -v rofi) ]]; then
+    selector="rofi"
+    selector_opts="-dmenu"
+fi
+
+if [[ !  $selector && $(command -v fzf) ]]; then
+    selector="fzf"
+    selector_opts=" "
+fi
+
+if [[ ! ${viewer} ]]; then
+    echo "Please install sxiv or feh!"
+    exit 1
+fi
+
+if [[ ! ${selector} ]]; then
+    echo "Please install dmenu or rofi or fzf!"
+    exit 1
+fi
 
 # If notify-send is not installed, use echo as notifier
-[[ ! $(command -v notify-send) ]] && notifier="echo" || notifier="notify-send"
-[[ ! $(command -v wget) ]] && downloader="curl" || downloader="wget"
+if [[ $(command -v notify-send) ]]; then
+    notifier="notify-send"
+else
+    notifier="echo"
+fi
 
-[[ ${viewer} == "sxiv" ]] && viewer_opts="-a -s f" || viewer_opts="-.ZdB black"
-selector_opts=" "
-[[ ${selector} == "dmenu" ]] && selector_opts="-P" || selector_opts="-dmenu"
-[[ ${downloader} == "curl" ]] && downloader_opts="-Os" || downloader_opts=" "
+if [[ $(command -v wget) ]]; then
+    downloader="wget"
+    downloader_opts=" "
+else
+    downloader="curl"
+    downloader_opts="-Os"
+fi
 
 # args
 while [[ $# -gt 0 ]]; do
@@ -57,13 +92,18 @@ while [[ $# -gt 0 ]]; do
 done
 
 
-[[ $FILTER -eq 1 && ${viewer} == "sxiv" ]] && viewer_opts="-o $viewer_opts"
+if [[ $FILTER -eq 1 && ${viewer} == "sxiv" ]]; then
+    viewer_opts="-o $viewer_opts"
+fi
 # Default config directory
 configdir="${XDG_CONFIG_HOME:-$HOME/.config}/redyt"
 
 # Create .config/redyt if it does not exist to prevent
 # the program from not functioning properly
-[[ ! -d "$configdir" ]] && echo "Directory $configdir does not exist, creating..." && mkdir -p "$configdir"
+if [[ ! -d "$configdir" ]]; then
+    echo "Directory $configdir does not exist, creating..."
+    mkdir -p "$configdir"
+fi
 
 # Default subreddit that will be inserted in "subreddit.txt"
 # if it does not exist
@@ -71,12 +111,17 @@ defaultsub="linuxmemes"
 
 # If subreddit.txt does not exist, create it to prevent
 # the program from not functioning properly
-[[ ! -f "$configdir/subreddit.txt" ]] && echo "$defaultsub" >> "$configdir/subreddit.txt"
+if [[ ! -f "$configdir/subreddit.txt" ]]; then
+    echo "$defaultsub" >> "$configdir/subreddit.txt"
+fi
 
 # If no argument is passed
 if [[ -z "$subreddit" ]]; then
 	# Ask the user to enter a subreddit
-	subreddit=$("$selector" "$selector_opts" "Select Subreddit r/" -i -l 10 < "$configdir/subreddit.txt" | cut -d\| -f1 | awk '{$1=$1;print}')
+	subreddit=$("$selector" "$selector_opts" \
+	    "Select Subreddit r/" -i -l 10 < \
+	    "$configdir/subreddit.txt" | cut -d\| -f1 \
+	    | awk '{$1=$1;print}')
 
 	# If no subreddit was chosen, exit
 	[[ -z "$subreddit" ]] && echo "no sub chosen" && exit 1
@@ -97,13 +142,20 @@ fi
 # Download the subreddit feed, containing only the
 # first 100 entries (limit), and store it inside
 # cachedir/tmp.json
-curl -sH "User-agent: 'your bot 0.1'" "https://www.reddit.com/r/$subreddit/${SORT:-hot}.json?limit=${LIMIT:-100}" > "$cachedir/tmp.json"
+base_url="https://www.reddit.com/r"
+curl -s "$base_url/$subreddit/${SORT:-hot}.json?limit=${LIMIT:-100}" \
+    -o $cachedir/tmp.json -H "User-agent: 'your bot 0.1'"
 
 # Create a list of images
-imgs=$(jq '.' < "$cachedir/tmp.json" | grep url_overridden_by_dest | grep -Eo "http(s|)://.*(jpg|png)\b" | sort -u)
+imgs=$(jq '.' < "$cachedir/tmp.json" | grep url_overridden_by_dest \
+    | grep -Eo "http(s|)://.*(jpg|png)\b" | sort -u)
 
 # If there are no images, exit
-[[ -z "$imgs" ]] && $notifier "Redyt" "sadly, there are no images for subreddit $subreddit, please try again later!" && exit 1
+if [[ -z "$imgs" ]]; then
+    $notifier "Redyt" "sadly, there are no images for subreddit \
+	$subreddit, please try again later!"
+    exit 1
+fi
 
 # Download images to $cachedir
 cd $cachedir
@@ -115,11 +167,14 @@ done
 wait
 
 # Send a notification
-[[ $VERBOSE -eq 1 ]] && $notifier  "Redyt" "👍 Download Finished, Enjoy! 😊"
+if [[ $VERBOSE -eq 1 ]]; then
+    $notifier  "Redyt" "👍 Download Finished, Enjoy! 😊"
+fi
+
 rm "$cachedir/tmp.json"
 
 # Display the images
-$viewer $viewer_opts $cachedir/*.png $cachedir/*.jpg
+$viewer $viewer_opts $cachedir
 
 # Once finished, remove all of the cached images
 [[ ! $KEEP -eq 1 ]] && rm "${cachedir:?}"/*
