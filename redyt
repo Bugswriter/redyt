@@ -24,15 +24,14 @@ if [[ $(command -v dmenu) ]]; then
     selector_opts="-P"
 fi
 
-if [[ !  $selector && $(command -v rofi) ]]; then
+[[ ! $selector && $(command -v fzf) ]] && selector="fzf"
+
+
+if [[ ! $selector && $(command -v rofi) ]]; then
     selector="rofi"
     selector_opts="-dmenu"
 fi
 
-if [[ !  $selector && $(command -v fzf) ]]; then
-    selector="fzf"
-    selector_opts=" "
-fi
 
 if [[ ! ${viewer} ]]; then
     echo "Please install sxiv or feh!"
@@ -61,34 +60,34 @@ fi
 
 # args
 while [[ $# -gt 0 ]]; do
-	case $1 in
-		-l|--limit)
-			shift
-			LIMIT=$1
-			case $LIMIT in
-				''|*[!0-9]*)
-					echo 'limit is NaN'
-					exit 1
-			esac
-			;;
-		-f|--filter)
-			FILTER=1
-			;;
-		-k|--keep)
-			KEEP=1
-			;;
-		-v|--verbose)
-			VERBOSE=1
-			;;
-		-s|--sort)
-			shift
-			SORT=$1
-			;;
-		*)
-			subreddit=$1
-			;;
-	esac
-	shift
+    case $1 in
+	-l|--limit)
+	    shift
+	    LIMIT=$1
+	    case $LIMIT in
+		''|*[!0-9]*)
+		    echo 'limit is NaN'
+		    exit 1
+	    esac
+	    ;;
+	-f|--filter)
+	    FILTER=1
+	    ;;
+	-k|--keep)
+	    KEEP=1
+	    ;;
+	-v|--verbose)
+	    VERBOSE=1
+	    ;;
+	-s|--sort)
+	    shift
+	    SORT=$1
+	    ;;
+	*)
+	    subreddit=$1
+	    ;;
+    esac
+    shift
 done
 
 
@@ -118,10 +117,14 @@ fi
 # If no argument is passed
 if [[ -z "$subreddit" ]]; then
 	# Ask the user to enter a subreddit
-	subreddit=$("$selector" "$selector_opts" \
-	    "Select Subreddit r/" -i -l 10 < \
-	    "$configdir/subreddit.txt" | cut -d\| -f1 \
-	    | awk '{$1=$1;print}')
+	if [[ ${selector} == 'fzf' ]]; then
+	    subreddit=$(fzf -i < $configdir/subreddit.txt)
+	else
+	    subreddit=$("$selector" "$selector_opts" \
+		"Select Subreddit r/" -i -l 10 < \
+		"$configdir/subreddit.txt" | cut -d\| -f1 \
+		| awk '{$1=$1;print}')
+	fi
 
 	# If no subreddit was chosen, exit
 	[[ -z "$subreddit" ]] && echo "no sub chosen" && exit 1
