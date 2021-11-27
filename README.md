@@ -28,8 +28,8 @@ Please note: you will need to install the following programs:
 ## Usage
 
 ```sh
-$ redyt [-l LIMIT] [-v] [-k] [-s SORT] [SUBREDDIT]
-$ redyt [--limit LIMIT] [--verbose] [--keep] [--sort SORT] [SUBREDDIT]
+$ redyt [-l LIMIT] [-s SORT] [-v] [-k] [-a] [SUBREDDIT]
+$ redyt [--limit LIMIT] [--sort SORT] [--verbose] [--keep] [--append] [SUBREDDIT]
 ```
 
 ## Arguments
@@ -38,3 +38,4 @@ $ redyt [--limit LIMIT] [--verbose] [--keep] [--sort SORT] [SUBREDDIT]
 * `-k, --keep` don't remove files after quitting `sxiv`
 * `-v, --verbose` use notifier
 * `-s, --sort` change post sort type
+* `-a, --append` append subreddit in config file (implicit sorting)

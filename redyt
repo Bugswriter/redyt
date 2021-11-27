@@ -73,6 +73,9 @@ while [[ $# -gt 0 ]]; do
 	-f|--filter)
 	    FILTER=1
 	    ;;
+	-a|--append)
+	    APPEND=1
+	    ;;
 	-k|--keep)
 	    KEEP=1
 	    ;;
@@ -96,6 +99,7 @@ if [[ $FILTER -eq 1 && ${viewer} == "sxiv" ]]; then
 fi
 # Default config directory
 configdir="${XDG_CONFIG_HOME:-$HOME/.config}/redyt"
+configfile="$configdir/subreddit.txt"
 
 # Create .config/redyt if it does not exist to prevent
 # the program from not functioning properly
@@ -110,24 +114,34 @@ defaultsub="linuxmemes"
 
 # If subreddit.txt does not exist, create it to prevent
 # the program from not functioning properly
-if [[ ! -f "$configdir/subreddit.txt" ]]; then
-    echo "$defaultsub" >> "$configdir/subreddit.txt"
+if [[ ! -f $configfile ]]; then
+    echo $defaultsub >> $configfile
 fi
 
 # If no argument is passed
 if [[ -z "$subreddit" ]]; then
-	# Ask the user to enter a subreddit
-	if [[ ${selector} == 'fzf' ]]; then
-	    subreddit=$(fzf -i < $configdir/subreddit.txt)
-	else
-	    subreddit=$("$selector" "$selector_opts" \
-		"Select Subreddit r/" -i -l 10 < \
-		"$configdir/subreddit.txt" | cut -d\| -f1 \
-		| awk '{$1=$1;print}')
-	fi
+    # Ask the user to enter a subreddit
+    if [[ ${selector} == 'fzf' ]]; then
+	subreddit=$(fzf -i < $configfile)
+    else
+	subreddit=$($selector $selector_opts \
+	    "Select Subreddit r/" -i -l 10 < \
+	    $configfile | cut -d\| -f1 \
+	    | awk '{$1=$1;print}')
+    fi
 
-	# If no subreddit was chosen, exit
-	[[ -z "$subreddit" ]] && echo "no sub chosen" && exit 1
+    # If no subreddit was chosen, exit
+    [[ -z "$subreddit" ]] && echo "no sub chosen" && exit 1
+
+elif [[ $APPEND -eq 1 ]]; then
+    echo $subreddit >> $configfile
+    subreddits=$(cat $configfile)
+    subreddits=$(echo $subreddits | sort -u)
+    echo -n "" > $configfile
+    for sub in $subreddits; do
+	[[ ! -z $sub ]] && echo $sub >> $configfile
+    done
+    unset subreddits
 fi
 
 # Default directory used to store the feed file and fetched images
@@ -150,6 +164,7 @@ curl -s "$base_url/$subreddit/${SORT:-hot}.json?limit=${LIMIT:-100}" \
     -o $cachedir/tmp.json -H "User-agent: 'your bot 0.1'"
 
 [[ $? -ne 0 ]] && $notifier "Redyt" "Couldn't fetch data" && exit 1
+
 # Create a list of images
 imgs=$(jq '.' < "$cachedir/tmp.json" | grep url_overridden_by_dest \
     | grep -Eo "http(s|)://.*(jpg|png)\b" | sort -u)
