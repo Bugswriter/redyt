@@ -149,14 +149,14 @@ base_url="https://www.reddit.com/r"
 curl -s "$base_url/$subreddit/${SORT:-hot}.json?limit=${LIMIT:-100}" \
     -o $cachedir/tmp.json -H "User-agent: 'your bot 0.1'"
 
+[[ $? -ne 0 ]] && $notifier "Redyt" "Couldn't fetch data" && exit 1
 # Create a list of images
 imgs=$(jq '.' < "$cachedir/tmp.json" | grep url_overridden_by_dest \
     | grep -Eo "http(s|)://.*(jpg|png)\b" | sort -u)
 
 # If there are no images, exit
-if [[ -z "$imgs" ]]; then
-    $notifier "Redyt" "sadly, there are no images for subreddit \
-	$subreddit, please try again later!"
+if [[ -z $imgs ]]; then
+    $notifier "Redyt" "sadly, there are no images for $subreddit"
     exit 1
 fi
 
