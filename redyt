@@ -2,55 +2,55 @@
 
 # Check if necessary programs are installed
 for prog in jq curl; do
-    if [[ ! $(command -v $prog) ]]; then
+    if [ ! "$(command -v $prog)" ]; then
 	echo "Please install $prog!"
 	exit 1
     fi
 done
 
-if [[ $(command -v sxiv) ]]; then
+if [ "$(command -v sxiv)" ]; then
     viewer="sxiv"
     viewer_opts="-a -s f"
 fi
 
 
-if [[ ! $viewer && $(command -v feh) ]]; then
+if [ ! "$viewer" ] && [ "$(command -v feh)" ] ; then
     viewer="feh"
     viewer_opts="-.ZdB black"
 fi
 
-if [[ $(command -v dmenu) ]]; then
+if [ "$(command -v dmenu)" ]; then
     selector="dmenu"
     selector_opts="-P"
 fi
 
-[[ ! $selector && $(command -v fzf) ]] && selector="fzf"
+[ ! "$selector" ] && [ "$(command -v fzf)" ]  && selector="fzf"
 
 
-if [[ ! $selector && $(command -v rofi) ]]; then
+if [ ! "$selector" ] && [ "$(command -v rofi)" ] ; then
     selector="rofi"
     selector_opts="-dmenu"
 fi
 
 
-if [[ ! ${viewer} ]]; then
+if [ ! "${viewer}" ]; then
     echo "Please install sxiv or feh!"
     exit 1
 fi
 
-if [[ ! ${selector} ]]; then
+if [ ! "${selector}" ]; then
     echo "Please install dmenu or rofi or fzf!"
     exit 1
 fi
 
 # If notify-send is not installed, use echo as notifier
-if [[ $(command -v notify-send) ]]; then
+if [ "$(command -v notify-send)" ]; then
     notifier="notify-send"
 else
     notifier="echo"
 fi
 
-if [[ $(command -v wget) ]]; then
+if [ "$(command -v wget)" ]; then
     downloader="wget"
     downloader_opts=" "
 else
@@ -59,7 +59,11 @@ else
 fi
 
 # args
-while [[ $# -gt 0 ]]; do
+FILTER=0
+APPEND=0
+KEEP=0
+VERBOSE=0
+while [ $# -gt 0 ]; do
     case $1 in
 	-l|--limit)
 	    shift
@@ -94,7 +98,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 
-if [[ $FILTER -eq 1 && ${viewer} == "sxiv" ]]; then
+if [ "$FILTER" -eq 1 ] && [ "${viewer}" = "sxiv" ] ; then
     viewer_opts="-o $viewer_opts"
 fi
 # Default config directory
@@ -103,7 +107,7 @@ configfile="$configdir/subreddit.txt"
 
 # Create .config/redyt if it does not exist to prevent
 # the program from not functioning properly
-if [[ ! -d "$configdir" ]]; then
+if [ ! -d "$configdir" ]; then
     echo "Directory $configdir does not exist, creating..."
     mkdir -p "$configdir"
 fi
@@ -114,15 +118,15 @@ defaultsub="linuxmemes"
 
 # If subreddit.txt does not exist, create it to prevent
 # the program from not functioning properly
-if [[ ! -f $configfile ]]; then
-    echo $defaultsub >> $configfile
+if [ ! -f "$configfile" ]; then
+    echo $defaultsub >> "$configfile"
 fi
 
 # If no argument is passed
-if [[ -z "$subreddit" ]]; then
+if [ -z "$subreddit" ]; then
     # Ask the user to enter a subreddit
-    if [[ ${selector} == 'fzf' ]]; then
-	subreddit=$(fzf -i < $configfile)
+    if [ "${selector}" = 'fzf' ]; then
+	subreddit="$(fzf -i < $configfile)"
     else
 	subreddit=$($selector $selector_opts \
 	    "Select Subreddit r/" -i -l 10 < \
@@ -131,15 +135,15 @@ if [[ -z "$subreddit" ]]; then
     fi
 
     # If no subreddit was chosen, exit
-    [[ -z "$subreddit" ]] && echo "no sub chosen" && exit 1
+    [ -z "$subreddit" ] && echo "no sub chosen" && exit 1
 
-elif [[ $APPEND -eq 1 ]]; then
-    echo $subreddit >> $configfile
-    subreddits=$(cat $configfile)
-    subreddits=$(echo $subreddits | sort -u)
-    echo -n "" > $configfile
-    for sub in $subreddits; do
-	[[ ! -z $sub ]] && echo $sub >> $configfile
+elif [ "$APPEND" -eq 1 ]; then
+    echo "$subreddit" >> "$configfile"
+    subreddits="$(cat "$configfile")"
+    subreddits="$(echo "$subreddits" | sort -u)"
+    echo -n "" > "$configfile"
+    for sub in "$subreddits"; do
+	[ ! -z "$sub" ] && echo "$sub" >> "$configfile"
     done
     unset subreddits
 fi
@@ -148,13 +152,13 @@ fi
 cachedir="/tmp/redyt"
 
 # If cachedir does not exist, create it
-if [[ ! -d "$cachedir" ]]; then
+if [ ! -d "$cachedir" ]; then
 	echo "$cachedir does not exist, creating..."
 	mkdir -p "$cachedir"
 fi
 
 # Send a notification
-[[ $VERBOSE -eq 1 ]] && $notifier "Redyt" "📩 Downloading your 🖼️ Memes"
+[ $VERBOSE -eq 1 ] && $notifier "Redyt" "📩 Downloading your 🖼️ Memes"
 
 # Download the subreddit feed, containing only the
 # first 100 entries (limit), and store it inside
@@ -163,29 +167,30 @@ base_url="https://www.reddit.com/r"
 curl -s "$base_url/$subreddit/${SORT:-hot}.json?limit=${LIMIT:-100}" \
     -o $cachedir/tmp.json -H "User-agent: 'your bot 0.1'"
 
-[[ $? -ne 0 ]] && $notifier "Redyt" "Couldn't fetch data" && exit 1
+[ $? -ne 0 ] && $notifier "Redyt" "Couldn't fetch data" && exit 1
 
 # Create a list of images
 imgs=$(jq '.' < "$cachedir/tmp.json" | grep url_overridden_by_dest \
     | grep -Eo "http(s|)://.*(jpg|png)\b" | sort -u)
 
 # If there are no images, exit
-if [[ -z $imgs ]]; then
+if [ -z "$imgs" ]; then
     $notifier "Redyt" "sadly, there are no images for $subreddit"
     exit 1
 fi
 
 # Download images to $cachedir
-cd $cachedir
+cd "$cachedir"
 for img in $imgs; do
-	if [[ ! -e "$cachedir/${img##*/}" ]]; then
+	if [ ! -e "$cachedir/${img##*/}" ]; then
 		$downloader $downloader_opts $img &
 	fi
 done
+
 wait
 
 # Send a notification
-if [[ $VERBOSE -eq 1 ]]; then
+if [ "$VERBOSE" -eq 1 ]; then
     $notifier  "Redyt" "👍 Download Finished, Enjoy! 😊"
 fi
 
@@ -195,4 +200,4 @@ rm "$cachedir/tmp.json"
 $viewer $viewer_opts $cachedir
 
 # Once finished, remove all of the cached images
-[[ ! $KEEP -eq 1 ]] && rm "${cachedir:?}"/*
+[ ! "$KEEP" -eq 1 ] && rm "${cachedir:?}"/*
