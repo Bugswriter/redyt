@@ -29,7 +29,7 @@ fi
 
 if [ ! "$selector" ] && [ "$(command -v rofi)" ] ; then
     selector="rofi"
-    selector_opts="-dmenu"
+    selector_opts="-dmenu -p"
 fi
 
 
