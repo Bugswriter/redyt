@@ -13,6 +13,11 @@ if [ "$(command -v sxiv)" ]; then
     viewer_opts="-a -s f"
 fi
 
+if [ ! "$viewer" ] && [ "$(command -v nsxiv)" ]; then
+    viewer="nsxiv"
+    viewer_opts="-a -s f"
+fi
+
 
 if [ ! "$viewer" ] && [ "$(command -v feh)" ] ; then
     viewer="feh"
@@ -34,7 +39,7 @@ fi
 
 
 if [ ! "${viewer}" ]; then
-    echo "Please install sxiv or feh!"
+    echo "Please install (n)sxiv or feh!"
     exit 1
 fi
 

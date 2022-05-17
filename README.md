@@ -21,7 +21,7 @@ Here's an example of a custom `subreddit.txt`: http://0x0.st/-rbq.txt
 Please note: you will need to install the following programs:
   - dmenu or rofi or fzf (User Input)
   - jq (JSON parsing)
-  - sxiv or feh (Image Viewing)
+  - (n)sxiv or feh (Image Viewing)
 
 `notify-send` is also recommended but, if not present, `echo` will be used as a notifier.
 
