@@ -28,14 +28,15 @@ Please note: you will need to install the following programs:
 ## Usage
 
 ```sh
-$ redyt [-l LIMIT] [-s SORT] [-v] [-k] [-a] [SUBREDDIT]
-$ redyt [--limit LIMIT] [--sort SORT] [--verbose] [--keep] [--append] [SUBREDDIT]
+$ redyt [-l LIMIT] [-s SORT] [-v] [-k] [-a] [-n] [SUBREDDIT]
+$ redyt [--limit LIMIT] [--sort SORT] [--verbose] [--keep] [--append] [--notify] [SUBREDDIT]
 ```
 
 ## Arguments
 
 * `-l LIMIT, --limit LIMIT` set the maximum number of files to be downloaded
 * `-k, --keep` don't remove files after quitting `sxiv`
-* `-v, --verbose` use notifier
+* `-v, --verbose` use progress
+* `-n, --notify` use notifier
 * `-s, --sort` change post sort type
 * `-a, --append` append subreddit in config file (implicit sorting)

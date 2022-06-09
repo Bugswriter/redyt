@@ -67,6 +67,7 @@ fi
 FILTER=0
 APPEND=0
 KEEP=0
+NOTIFY=0
 VERBOSE=0
 while [ $# -gt 0 ]; do
     case $1 in
@@ -90,6 +91,9 @@ while [ $# -gt 0 ]; do
 	    ;;
 	-v|--verbose)
 	    VERBOSE=1
+	    ;;
+	-n|--notify)
+	    NOTIFY=1
 	    ;;
 	-s|--sort)
 	    shift
@@ -158,12 +162,13 @@ cachedir="/tmp/redyt"
 
 # If cachedir does not exist, create it
 if [ ! -d "$cachedir" ]; then
-	echo "$cachedir does not exist, creating..."
+	[ $VERBOSE -eq 1 ] && \
+	    echo "$cachedir does not exist, creating..."
 	mkdir -p "$cachedir"
 fi
 
 # Send a notification
-[ $VERBOSE -eq 1 ] && $notifier "Redyt" "📩 Downloading your 🖼️ Memes"
+[ $NOTIFY -eq 1 ] && $notifier "Redyt" "📩 Downloading your 🖼️ Memes"
 
 # Download the subreddit feed, containing only the
 # first 100 entries (limit), and store it inside
@@ -192,10 +197,21 @@ for img in $imgs; do
 	fi
 done
 
-wait
+if [ ! "$VERBOSE" -eq 1 ]; then
+    wait
+else
+    count=$(ps aux | rg -e curl -e redd | rg -v rg | wc -l)
+    printf "\nDownloading : $count \n"
+    while [ 0 -lt $count ]; do
+	count=$(ps aux | rg -e curl -e redd | rg -v rg | wc -l)
+	printf "\rRemaining : $count "
+    done
+    printf "\rDone downloading \t \n"
+fi
+
 
 # Send a notification
-if [ "$VERBOSE" -eq 1 ]; then
+if [ "$NOTIFY" -eq 1 ]; then
     $notifier  "Redyt" "👍 Download Finished, Enjoy! 😊"
 fi
 
