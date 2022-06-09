@@ -163,7 +163,7 @@ cachedir="/tmp/redyt"
 # If cachedir does not exist, create it
 if [ ! -d "$cachedir" ]; then
 	[ $VERBOSE -eq 1 ] && \
-	    echo "$cachedir does not exist, creating..."
+	    echo "$cachedir does not exist, creating...\n"
 	mkdir -p "$cachedir"
 fi
 
@@ -201,7 +201,7 @@ if [ ! "$VERBOSE" -eq 1 ]; then
     wait
 else
     count=$(ps aux | rg -e curl -e redd | rg -v rg | wc -l)
-    printf "\nDownloading : $count \n"
+    printf "Downloading : $count \n"
     while [ 0 -lt $count ]; do
 	count=$(ps aux | rg -e curl -e redd | rg -v rg | wc -l)
 	printf "\rRemaining : $count "
