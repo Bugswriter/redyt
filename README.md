@@ -35,7 +35,7 @@ $ redyt [--limit LIMIT] [--sort SORT] [--verbose] [--keep] [--append] [--notify]
 ## Arguments
 
 * `-l LIMIT, --limit LIMIT` set the maximum number of files to be downloaded
-* `-k, --keep` don't remove files after quitting `sxiv`
+* `-k, --keep` don't remove files after quitting image viewer
 * `-v, --verbose` use progress
 * `-n, --notify` use notifier
 * `-s, --sort` change post sort type
